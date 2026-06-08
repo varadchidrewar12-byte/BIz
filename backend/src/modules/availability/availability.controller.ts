@@ -10,18 +10,18 @@ export class AvailabilityController {
    */
   async createAvailability(req: Request, res: Response): Promise<void> {
     try {
-      const { consultantId, slots, timezone, maxConsultationsPerDay } = req.body;
+      const { consultant_id, slots, timezone, max_consultations_per_day } = req.body;
 
-      if (!consultantId || !slots) {
+      if (!consultant_id || !slots) {
         res.status(400).json({ error: 'Missing required fields' });
         return;
       }
 
       const availability = await availabilityService.createAvailability(
-        consultantId,
+        consultant_id,
         slots,
         timezone,
-        maxConsultationsPerDay
+        max_consultations_per_day
       );
 
       res.status(201).json(availability);
@@ -141,17 +141,17 @@ export class AvailabilityController {
   async addBreakTime(req: Request, res: Response): Promise<void> {
     try {
       const { consultantId } = req.params;
-      const { startTime, endTime } = req.body;
+      const { start_time, end_time } = req.body;
 
-      if (!startTime || !endTime) {
+      if (!start_time || !end_time) {
         res.status(400).json({ error: 'Start and end times are required' });
         return;
       }
 
       const availability = await availabilityService.addBreakTime(
         consultantId,
-        startTime,
-        endTime
+        start_time,
+        end_time
       );
 
       if (!availability) {

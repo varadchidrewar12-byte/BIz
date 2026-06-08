@@ -10,17 +10,17 @@ export class PaymentsController {
    */
   async createOrder(req: Request, res: Response): Promise<void> {
     try {
-      const { bookingId, consultantId, clientId, amount, currency } = req.body;
+      const { booking_id, consultant_id, client_id, amount, currency } = req.body;
 
-      if (!bookingId || !consultantId || !clientId || !amount) {
+      if (!booking_id || !consultant_id || !client_id || !amount) {
         res.status(400).json({ error: 'Missing required fields' });
         return;
       }
 
       const order = await paymentsService.createOrder(
-        bookingId,
-        consultantId,
-        clientId,
+        booking_id,
+        consultant_id,
+        client_id,
         amount,
         currency || 'INR'
       );
@@ -55,15 +55,14 @@ export class PaymentsController {
         return;
       }
 
-      // Update payment status to completed
-      const payment = await paymentsService.getPaymentByOrderId(razorpayOrderId);
-      if (payment) {
-        payment.razorpayPaymentId = razorpayPaymentId;
-        payment.status = 'completed';
-        await payment.save();
-      }
+      // Update payment status to completed via service
+      const updatedPayment = await paymentsService.updatePaymentStatus(
+        razorpayOrderId,
+        'completed',
+        razorpayPaymentId
+      );
 
-      res.json({ message: 'Payment verified successfully', payment });
+      res.json({ message: 'Payment verified successfully', payment: updatedPayment });
     } catch (error) {
       res.status(500).json({ error: `Verification failed: ${error}` });
     }
@@ -171,12 +170,12 @@ export class PaymentsController {
   async refundPayment(req: Request, res: Response): Promise<void> {
     try {
       const { paymentId } = req.params;
-      const { refundAmount, refundReason } = req.body;
+      const { refund_amount, refund_reason } = req.body;
 
       const refund = await paymentsService.refundPayment(
         paymentId,
-        refundAmount,
-        refundReason
+        refund_amount,
+        refund_reason
       );
 
       res.json({ message: 'Payment refunded successfully', refund });

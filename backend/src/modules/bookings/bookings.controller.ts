@@ -10,19 +10,19 @@ export class BookingsController {
    */
   async createBooking(req: Request, res: Response): Promise<void> {
     try {
-      const { consultantId, clientId, scheduledAt, durationMinutes, notes } = req.body;
+      const { consultant_id, client_id, scheduled_at, duration_minutes, notes } = req.body;
 
       // Validate required fields
-      if (!consultantId || !clientId || !scheduledAt) {
+      if (!consultant_id || !client_id || !scheduled_at) {
         res.status(400).json({ error: 'Missing required fields' });
         return;
       }
 
       // Check availability
       const isAvailable = await bookingsService.checkAvailability(
-        consultantId,
-        new Date(scheduledAt),
-        durationMinutes || 60
+        consultant_id,
+        new Date(scheduled_at),
+        duration_minutes || 60
       );
 
       if (!isAvailable) {
@@ -31,10 +31,10 @@ export class BookingsController {
       }
 
       const booking = await bookingsService.createBooking({
-        consultantId,
-        clientId,
-        scheduledAt: new Date(scheduledAt),
-        durationMinutes: durationMinutes || 60,
+        consultant_id,
+        client_id,
+        scheduled_at: new Date(scheduled_at),
+        duration_minutes: duration_minutes || 60,
         notes,
         status: 'pending',
       });
