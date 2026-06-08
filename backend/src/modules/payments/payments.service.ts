@@ -79,6 +79,39 @@ export class PaymentsService {
   }
 
   /**
+   * Update payment status
+   */
+  async updatePaymentStatus(
+    razorpayOrderId: string,
+    status: string,
+    razorpayPaymentId?: string
+  ): Promise<IPayment | null> {
+    try {
+      const updateData: any = {
+        status,
+        updated_at: new Date().toISOString(),
+      };
+
+      if (razorpayPaymentId) {
+        updateData.razorpay_payment_id = razorpayPaymentId;
+      }
+
+      const { data, error } = await supabase
+        .from(PAYMENTS_TABLE)
+        .update(updateData)
+        .eq('razorpay_order_id', razorpayOrderId)
+        .select()
+        .single();
+
+      if (error) return null;
+      return data;
+    } catch (error) {
+      console.error(`Failed to update payment status: ${error}`);
+      return null;
+    }
+  }
+
+  /**
    * Handle payment webhook
    */
   async handlePaymentWebhook(webhookData: any): Promise<IPayment | null> {
@@ -130,8 +163,7 @@ export class PaymentsService {
    * Get payment by Razorpay order ID
    */
   async getPaymentByOrderId(razorpayOrderId: string): Promise<IPayment | null> {
-    try {
-      const { data, error } = await supabase
+    try {\n      const { data, error } = await supabase
         .from(PAYMENTS_TABLE)
         .select('*')
         .eq('razorpay_order_id', razorpayOrderId)
